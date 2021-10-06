@@ -1,0 +1,37 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: category-api
+  labels:
+    app: category-api
+spec:
+  selector:
+    app: category-api
+  ports:
+    - protocol: TCP
+      port: 9091
+      targetPort: 9091
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: category-api
+  labels:
+    app: category-api
+spec:
+  selector:
+    matchLabels:
+      app: category-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: category-api
+    spec:
+      containers:
+        - name: category-api
+          image: evato/category-api
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9091
