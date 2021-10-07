@@ -2,8 +2,6 @@ kind: Service
 apiVersion: v1
 metadata:
   name: category-api
-  labels:
-    app: category-api
 spec:
   selector:
     app: category-api
@@ -11,7 +9,6 @@ spec:
     - protocol: TCP
       port: 9091
       targetPort: 9091
-  type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -32,6 +29,33 @@ spec:
       containers:
         - name: category-api
           image: evato/category-api
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 9091
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+#    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: ingress.demo
+      http:
+        paths:
+          - path: /categories
+            pathType: Prefix
+            backend:
+              service:
+                name: category-api
+                port:
+                  number: 9091
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: category-api
+                port:
+                  number: 9091
